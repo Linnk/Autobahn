@@ -13,6 +13,8 @@ Achieving these goals, the next step is to create a model of a complete object-o
 
 h3. KISS - «Keep It Short and Simple»
 
+On the "lib" folder we have a "db_config.php" file. Here is where the database access information most be introduced. After that, it's all automagic:
+
 <pre><code>
 require('lib/autobahn.php');
 
@@ -50,7 +52,7 @@ The "query" function is more than just a mask for the database manager. It's act
 
 <pre><code>
 //	Classic SQL
-$authors = $library->query('SELECT Author.id, Author.firstname FROM authors Author');	
+$authors = $library->query('SELECT Author.*, Book.* FROM authors Author, books Book WHERE Book.author_id = Author.id');
 
 print_r($authors); 
 
@@ -74,24 +76,9 @@ Array
                 )
 
         )
-
-    [1] => Array
-        (
-            [Author] => Array
-                (
-                    [id] => 2
-                    [firstname] => John
-                    [lastname] => Carmack
-                )
-
-            [Book] => Array
-                (
-                    [id] => 3
-                    [author_id] => 2
-                    [title] => Frameworks for videogames
-                )
-
-        )
+	[1] => Array ...
+	[2] => Array ...
+	[n] => Array ...
 )
 */
 </code></pre>
