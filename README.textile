@@ -15,8 +15,7 @@ h3. KISS - «Keep It Short and Simple»
 
 On the "lib" folder we have a "db_config.php" file. Here is where the database access information most be introduced. After that, it's all automagic:
 
-<pre><code>
-require('lib/autobahn.php');
+<pre><code>require('lib/autobahn.php');
 
 $library = Autobahn::getConnection('default');
 
@@ -27,7 +26,7 @@ $authors = $library->query('SELECT Author.id, Author.firstname FROM authors Auth
 //	Find (like Select)
 $book 			= $library->findBooksById(1);
 $books 			= $library->findAllBooks();
-$favorite_books = $library->findAllBooksById(1,2,3,4,5);
+$favorite_books	= $library->findAllBooksById(1,2,3,4,5);
 
 //	Insert
 $newBook = array('id' => null, 'author_id' => 12, 'title' => 'Frameworks for PHP');
@@ -50,8 +49,7 @@ h3. Classic SQL
 
 The "query" function is more than just a mask for the database manager. It's actually a method that executes the query, make statistics of the process and the result is post-processed to deliver a structured array of the query. Example:
 
-<pre><code>
-//	Classic SQL
+<pre><code>//	Classic SQL
 $authors = $library->query('SELECT Author.*, Book.* FROM authors Author, books Book WHERE Book.author_id = Author.id');
 
 print_r($authors); 
@@ -87,8 +85,7 @@ h3. Magic methods: Find, Insert, Update and Delete
 
 This magic methods provides an easy and intuitive way to build the SQL query for the database selected. Probably you'll still have to do complicated queries, but now most everyday queries are easy to invoke:
 
-<pre><code>
-//	Find
+<pre><code>//	Find
 $book 			= $library->findBooksById(1);
 $books 			= $library->findAllBooks();
 $favorite_books = $library->findAllBooksById(1,2,3,4,5);
@@ -110,8 +107,7 @@ h3. Logs
 
 The logs are used to analyze the efficiency of requests made. Each query executed from autobahn is stored in the log file with statistics, if you're in debug mode:
 
-<pre><code>
-require('lib/autobahn.php');
+<pre><code>require('lib/autobahn.php');
 
 $library = Autobahn::getConnection('default');
 $library->debug = true;
