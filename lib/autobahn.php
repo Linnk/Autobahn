@@ -174,8 +174,7 @@
 						'limit' => '',
 					);
 					
-					echo $sql = $this->renderStatement('select',$query);
-					echo "\n";
+					$sql = $this->renderStatement('select',$query);
 
 					return $this->query($sql);
 				}
@@ -198,8 +197,7 @@
 						'limit' => '1',
 					);
 					
-					echo $sql = $this->renderStatement('select', $query);
-					echo "\n";
+					$sql = $this->renderStatement('select', $query);
 
 					$result = $this->query($sql);
 
@@ -220,8 +218,7 @@
 						'values' => $values,
 					);
 					
-					echo $sql = $this->renderStatement('insert', $query);
-					echo "\n";
+					$sql = $this->renderStatement('insert', $query);
 
 					return $this->execute($sql);
 				}
@@ -240,8 +237,7 @@
 						'conditions' => implode(' AND ',$conditions),
 					);
 					
-					echo $sql = $this->renderStatement('update', $query);
-					echo "\n";
+					$sql = $this->renderStatement('update', $query);
 
 					return $this->execute($sql);
 				}
@@ -266,8 +262,7 @@
 						'conditions' => $conditions,
 					);
 					
-					echo $sql = $this->renderStatement('delete', $query);
-					echo "\n";
+					$sql = $this->renderStatement('delete', $query);
 
 					return $this->execute($sql);
 				}
