@@ -24,9 +24,9 @@ $library = Autobahn::getConnection('default');
 $authors = $library->query('SELECT Author.id, Author.firstname FROM authors Author');	
 
 //	Find (like Select)
-$book 			= $library->findBooksById(1);
-$books 			= $library->findAllBooks();
-$favorite_books	= $library->findAllBooksById(1,2,3,4,5);
+$book 	   = $library->findBooksById(1);
+$books 	   = $library->findAllBooks();
+$favorites = $library->findAllBooksById(1,2,3,4,5);
 
 //	Insert
 $newBook = array('id' => null, 'author_id' => 12, 'title' => 'Frameworks for PHP');
