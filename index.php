@@ -1,15 +1,26 @@
 <?php
 	
 	require('lib/autobahn.php');
-	
+
+	class DB_CONFIG
+	{
+		public $default = array(
+			'driver' 	=> 'mysql',
+			'host' 		=> 'localhost',
+			'user' 		=> 'root',
+			'password' 	=> '010203',
+			'database' 	=> 'library'
+		);
+	}
+
 	$library = Autobahn::getConnection('default');
-	
+
 	//	Classic SQL
 	$authors = $library->query('SELECT Author.*, Book.* FROM authors Author, books Book WHERE Book.author_id = Author.id');
 	
 	//	Find (like Select)
-	$book 			= $library->findBooksById(1);
-	$books 			= $library->findAllBooks();
+	$book = $library->findBooksById(1);
+	$books = $library->findAllBooks();
 	$favorite_books = $library->findAllBooksById(1,2,3,4,5);
 
 	//	Insert
