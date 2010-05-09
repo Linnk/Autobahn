@@ -2,16 +2,7 @@
 	
 	require('lib/autobahn.php');
 
-	class DB_CONFIG
-	{
-		public $default = array(
-			'driver' 	=> 'mysql',
-			'host' 		=> 'localhost',
-			'user' 		=> 'root',
-			'password' 	=> '010203',
-			'database' 	=> 'library'
-		);
-	}
+	define('AUTOBAHN_DB_CONFIG', AUTOBAHN_ROOT.'db_config.php');
 
 	$library = Autobahn::getConnection('default');
 

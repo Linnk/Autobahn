@@ -13,34 +13,17 @@ Achieving these goals, the next step is to create a model of a complete object-o
 
 h3. KISS - «Keep It Short and Simple»
 
-On the "lib" folder we have a "db_config.php" file. Here is where the database access information most be introduced. After that, it's all automagic:
+You need declare a php class named "DB_CONFIG" with a property (an array) named as you want (I recommend "default", because Autobahn is which going to looking for in first place) with the values of the "driver", "host", "user", "password" and "database" for your connection . You can put this class in other file (it's recommend too) and set the constant with the path of this. After that, is all automagic:
 
 <pre><code>require('lib/autobahn.php');
+define('AUTOBAHN_DB_CONFIG', AUTOBAHN_ROOT.'db_config.php');
 
-$library = Autobahn::getConnection('default');
-
+$library = Autobahn::getConnection('default'); // "default" is the name of your connection.
 
 //	Classic SQL
 $authors = $library->query('SELECT Author.id, Author.firstname FROM authors Author');	
 
-//	Find (like Select)
-$book 	   = $library->findBooksById(1);
-$books 	   = $library->findAllBooks();
-$favorites = $library->findAllBooksById(1,2,3,4,5);
-
-//	Insert
-$newBook = array('id' => null, 'author_id' => 12, 'title' => 'Frameworks for PHP');
-$library->insertBooks($newBook);
-
-//	Update
-$values = array('title' => 'Frameworks for PHP 5', 'description' => '...');
-$conditions = array('id' => 10);
-$library->updateBooks($values, $conditions);
-
-//	Delete
-$library->deleteBooksById(10,11,12);
-
-//	Show stats of all queries :) ... only for CLI mode, for now.
+//	Show stats of the query
 $library->showLogs();
 
 </code></pre>
@@ -105,7 +88,7 @@ $library->deleteBooksById(10,11,12);
 
 h3. Logs
 
-The logs are used to analyze the efficiency of requests made. Each query executed from autobahn is stored in the log file with statistics, if you're in debug mode:
+The logs are used to analyze the efficiency of requests made. Each query executed from autobahn is stored in the log file with statistics by default:
 
 <pre><code>require('lib/autobahn.php');
 
@@ -114,7 +97,7 @@ $library->debug = true;
 
 // Queries...
 
-//	Show stats of all queries :) ... only for CLI mode, for now.
+//	Show stats of all queries :)
 $library->showLogs();
 </code></pre>
 
