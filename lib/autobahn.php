@@ -136,7 +136,7 @@
 		{
 			if(PHP_SAPI != 'cli')
 			{
-				
+				pr($this->__logs);
 			}
 			else
 				print_r($this->__logs);

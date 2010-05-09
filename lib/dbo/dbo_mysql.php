@@ -65,17 +65,20 @@
 		}
 		public function getRow($row = null, $index = 'associative')
 		{
-			if(is_numeric($row))
-				mysql_data_seek($this->__resource, $row);
-
-			switch($index)
+			if(is_resource($this->__resource))
 			{
-				case 'associative':
-					return mysql_fetch_array($this->__resource, MYSQL_ASSOC);
-				case 'number':
-					return mysql_fetch_array($this->__resource, MYSQL_NUM);
-				case 'both':
-					return mysql_fetch_array($this->__resource, MYSQL_BOTH);
+				if(is_numeric($row))
+					mysql_data_seek($this->__resource, $row);
+
+				switch($index)
+				{
+					case 'associative':
+						return mysql_fetch_array($this->__resource, MYSQL_ASSOC);
+					case 'number':
+						return mysql_fetch_array($this->__resource, MYSQL_NUM);
+					case 'both':
+						return mysql_fetch_array($this->__resource, MYSQL_BOTH);
+				}
 			}
 			return false;
 		}
@@ -93,12 +96,16 @@
 		}
 		public function getFields()
 		{
-			$fields = array();
-			while($field = mysql_fetch_field($this->__resource))
+			if(is_resource($this->__resource))
 			{
-				$fields[] = array('table' => $field->table, 'name' => $field->name);
+				$fields = array();
+				while($field = mysql_fetch_field($this->__resource))
+				{
+					$fields[] = array('table' => $field->table, 'name' => $field->name);
+				}
+				return $fields;
 			}
-			return $fields;
+			return false;
 		}
 		public function lastAffected()
 		{
