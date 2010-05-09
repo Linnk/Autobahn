@@ -303,7 +303,7 @@
 					trigger_error('No "password" in '.$db.' database configuration', E_ERROR);
 
 				if(!isset($config['database']))
-					trigger_error('No "database" in '.$db.' database configuration', E_ERROR);
+					trigger_error('No "database" name in '.$db.' configuration', E_ERROR);
 			}
 		}
 		public static function getConnection($db = 'default')
