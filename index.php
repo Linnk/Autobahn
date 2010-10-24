@@ -1,8 +1,17 @@
 <?php
 	
-	require('lib/autobahn.php');
+	class DB_CONFIG
+	{
+		public $default = array(
+			'driver' 	=> 'mysql',
+			'host' 		=> 'localhost',
+			'user' 		=> 'root',
+			'password' 	=> '010203',
+			'database' 	=> 'library'
+		);
+	}
 
-	define('AUTOBAHN_DB_CONFIG', AUTOBAHN_ROOT.'db_config.php');
+	require('lib/autobahn.php');
 
 	$library = Autobahn::getConnection('default');
 
@@ -26,7 +35,7 @@
 	//	Delete
 	$library->deleteBooksById(99);
 
-	//	Show stats of all queries :) ... only for CLI mode
+	//	Show some stats of all queries :)
 	$library->showLogs();
 
 ?>

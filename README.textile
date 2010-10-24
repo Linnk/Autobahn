@@ -15,8 +15,17 @@ h3. KISS - «Keep It Short and Simple»
 
 You need declare a php class named "DB_CONFIG" with a property (an array) named as you want (I recommend "default", because Autobahn is which going to looking for in first place) with the values of the "driver", "host", "user", "password" and "database" for your connection . You can put this class in other file (it's recommend too) and set the constant with the path of this. After that, is all automagic:
 
-<pre><code>require('lib/autobahn.php');
-define('AUTOBAHN_DB_CONFIG', AUTOBAHN_ROOT.'db_config.php');
+<pre><code>class DB_CONFIG
+{
+	public $default = array(
+		'driver' 	=> 'mysql',
+		'host' 		=> 'localhost',
+		'user' 		=> 'root',
+		'password' 	=> '010203',
+		'database' 	=> 'library'
+	);
+}
+require('lib/autobahn.php');
 
 $library = Autobahn::getConnection('default'); // "default" is the name of your connection.
 
@@ -101,6 +110,6 @@ $library->debug = true;
 $library->showLogs();
 </code></pre>
 
-h3. There are many things to do
+h3. There are many things to do and Models are comming soon :3
 
 Criticism and comments about it are welcome.
