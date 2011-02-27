@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 5.1.37, for debian-linux-gnu (i486)
+-- MySQL dump 10.13  Distrib 5.1.44, for apple-darwin8.11.1 (i386)
 --
 -- Host: localhost    Database: library
 -- ------------------------------------------------------
--- Server version	5.1.37-1ubuntu5
+-- Server version	5.1.44
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -51,8 +51,9 @@ CREATE TABLE `books` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
   `author_id` bigint(20) unsigned NOT NULL,
   `title` tinytext,
+  `description` text,
   PRIMARY KEY (`id`)
-) ENGINE=MyISAM AUTO_INCREMENT=6 DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM AUTO_INCREMENT=28 DEFAULT CHARSET=latin1;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -61,8 +62,53 @@ CREATE TABLE `books` (
 
 LOCK TABLES `books` WRITE;
 /*!40000 ALTER TABLE `books` DISABLE KEYS */;
-INSERT INTO `books` VALUES (1,12,'Frameworks for PHP'),(2,1,'Frameworks for languages'),(3,2,'Frameworks for videogames'),(4,3,'Design for videogames'),(5,4,'Art and Design');
+INSERT INTO `books` VALUES (1,12,'Frameworks for PHP 5','...'),(2,1,'Frameworks for languages',NULL),(3,2,'Frameworks for videogames',NULL),(4,3,'Design for videogames',NULL),(5,4,'Art and Design',NULL),(6,1,'Frameworks for languages',NULL),(7,1,'Frameworks for languages',NULL),(8,1,'Frameworks for languages',NULL),(9,1,'Frameworks for languages',NULL),(10,1,'Frameworks for languages',NULL),(11,1,'Frameworks for languages',NULL),(12,1,'Frameworks for languages',NULL),(13,1,'Frameworks for languages',NULL),(14,1,'Frameworks for languages',NULL),(15,1,'Frameworks for languages',NULL),(16,1,'Frameworks for languages',NULL),(17,1,'Frameworks for languages',NULL),(18,1,'Frameworks for languages',NULL),(19,1,'Frameworks for languages',NULL),(20,1,'Frameworks for languages',NULL),(21,1,'Frameworks for languages',NULL),(22,1,'Frameworks for languages',NULL),(23,1,'Frameworks for languages',NULL),(24,1,'Frameworks for languages',NULL),(25,1,'Frameworks for languages',NULL),(26,1,'Frameworks for languages',NULL),(27,1,'Frameworks for languages',NULL);
 /*!40000 ALTER TABLE `books` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `books_tags`
+--
+
+DROP TABLE IF EXISTS `books_tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `books_tags` (
+  `book_id` bigint(20) unsigned NOT NULL,
+  `tag_id` bigint(20) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `books_tags`
+--
+
+LOCK TABLES `books_tags` WRITE;
+/*!40000 ALTER TABLE `books_tags` DISABLE KEYS */;
+/*!40000 ALTER TABLE `books_tags` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `tags`
+--
+
+DROP TABLE IF EXISTS `tags`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `tags` (
+  `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `name` tinytext,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `tags`
+--
+
+LOCK TABLES `tags` WRITE;
+/*!40000 ALTER TABLE `tags` DISABLE KEYS */;
+/*!40000 ALTER TABLE `tags` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -74,4 +120,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2010-01-14  3:36:15
+-- Dump completed on 2011-02-26 17:54:24

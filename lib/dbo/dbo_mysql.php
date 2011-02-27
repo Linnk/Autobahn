@@ -4,6 +4,8 @@
 	{		
 		private $__dbo_connection;
 		private $__resource;
+		
+		private $operators = array('=','<>','<=>','>','<','>=','<=','LIKE','NOT');
 
 		public function __construct($config)
 		{
@@ -12,10 +14,10 @@
 		public function connect($host, $user, $password, $database, $encoding)
 		{
 			if(!$this->__dbo_connection = mysql_connect($host, $user, $password))
-				trigger_error('Database connection error',E_USER_ERROR);
+				trigger_error('Autobahn: Database connection error',E_USER_ERROR);
 			
 			if(!mysql_select_db($database, $this->__dbo_connection))
-				trigger_error('Database selection error',E_USER_ERROR);
+				trigger_error('Autobahn: Database selection error',E_USER_ERROR);
 			
 			$this->connected = true;
 			
@@ -30,34 +32,52 @@
 			extract($query);
 
 			if(isset($conditions) && !empty($conditions))
-				$conditions = 'WHERE '.$conditions;
+				$conditions = 'WHERE '.(is_array($conditions) ? $this->_sqlEquivalentConditions($conditions) : $conditions);
+			else
+				$conditions = '';
 
 			if(isset($group) && !empty($group))
-				$group = 'GROUP BY '.$group;
+				$group = 'GROUP BY '.(is_array($group) ? $this->_sqlEquivalentGroup($group) : $group);
+			else
+				$group = '';
 
 			if(isset($order) && !empty($order))
-				$order = 'ORDER BY '.$order;
+				$order = 'ORDER BY '.(is_array($order) ? $this->_sqlEquivalentOrder($order) : $order);
+			else
+				$order = '';
+
+			if(isset($fields) && !empty($fields))
+				$fields = is_array($fields) ? $this->_sqlEquivalentFields($fields) : $fields;
 
 			if(isset($limit) && !empty($limit))
 				$limit = 'LIMIT '.$limit;
-
-			if(isset($fields) && is_array($fields))
-				$fields = implode(', ',$fields);
-
-			if(isset($values) && is_array($values))
-				$values = implode(', ',$values);
+			else
+				$limit = '';
 
 			switch (strtolower($type))
 			{
 				case 'select':
 					return "SELECT {$fields} FROM {$table} {$conditions} {$group} {$order} {$limit}";
 				break;
+
 				case 'insert':
+					if(!isset($values) || empty($values))
+						trigger_error('Autobahn: INSERT values error.',E_USER_ERROR);
+
+					$values = implode(',', $this->_sqlEquivalentValues($values));
+
 					return "INSERT INTO {$table} ({$fields}) VALUES ({$values})";
 				break;
+
 				case 'update':
-					return "UPDATE {$table} SET {$fields} {$conditions}";
+					if(!isset($declarations) || empty($declarations))
+						trigger_error('Autobahn: UPDATE values error.',E_USER_ERROR);
+		
+					$declarations = is_array($declarations) ? $this->_sqlEquivalentDeclarations($declarations) : $declarations;
+
+					return "UPDATE {$table} SET {$declarations} {$conditions}";
 				break;
+
 				case 'delete':
 					return "DELETE FROM {$table} {$conditions}";
 				break;
@@ -128,26 +148,89 @@
 
 			return null;
 		}
+    	protected function _sqlEquivalentDeclarations($arguments)
+    	{
+			foreach($arguments as $field => $value)
+			{
+				$arguments[$field] = $field.' = '.$this->_sqlEquivalentValue($value);
+			}
+			return implode(', ', $arguments);
+    	}
+    	protected function _sqlEquivalentGroup($arguments)
+    	{
+			return implode(', ',$arguments);
+    	}
+    	protected function _sqlEquivalentOrder($arguments)
+    	{
+			foreach($arguments as $field => $value)
+			{
+				if(!is_numerc($field))
+				{
+					$value = strtoupper($value);
+					if($value === 'ASC' || $value === 'DESC')
+						$arguments[$field] = "$field $value";
+					else
+						trigger_error('Autobahn: Order\'s parameter unknown',E_USER_ERROR);
+				}
+			}
+			return implode(', ',$arguments);
+    	}
+    	protected function _sqlEquivalentFields($arguments)
+    	{
+			foreach($arguments as $field => $value)
+			{
+				if(!is_numeric($field))
+					$arguments[$field] = "$field AS '$value'";
+			}
+			return implode(', ',$arguments);
+    	}
     	protected function _sqlEquivalentConditions($arguments)
     	{
     		$conditions = array();
 			foreach($arguments as $field => $value)
-			{						
-				$operator = is_string($value) ? 'LIKE' : '=';
-				if(is_string($field) && ($value = $this->_sqlEquivalentValue($value)))
-					$conditions[] = "$field $operator $value";
-			}
-			return $conditions;
-    	}
-    	protected function _sqlEquivalentDeclarations($arguments)
-    	{
-    		$declarations = array();
-			foreach($arguments as $field => $value)
 			{
-				if(is_string($field) && ($value = $this->_sqlEquivalentValue($value)))
-					$declarations[] = "$field = $value";
+				$field = trim($field);
+
+				if(strpos($field, ' ') !== false)
+				{
+					list($field,$operator) = explode(' ',$field);
+
+					if(!in_array($operator,$this->__operators))
+						trigger_error('Autobahn: Operator type unknown',E_USER_ERROR);
+				}
+				else
+					$operator = '=';
+
+				if(is_string($value))
+				{
+					$operator = ($operator === 'NOT') ? 'NOT LIKE' : 'LIKE';
+					
+					$value = mysql_real_escape_string($this->__dbo_connection, $value);
+				}
+				elseif(is_bool($value) || is_null($value))
+				{
+					$operator = ($operator === 'NOT') ? 'IS NOT' : 'IS';
+					
+					if(is_bool($value))
+						$value = $value === true ? 'TRUE' : 'FALSE';
+					else
+						$value = 'NULL';
+				}
+				elseif(is_array($value))
+				{
+					$operator = ($operator === 'NOT') ? 'NOT IN' : 'IN';
+
+					if(empty($value))
+						trigger_error("Autobahn: The second parameter of operator $operator most not be empty.",E_USER_ERROR);
+
+					$value = '('.implode(',', $this->_sqlEquivalentValues($value)).')';
+				}
+				elseif(!is_numeric($value))
+					trigger_error('Autobahn: Data type not supported.',E_USER_ERROR);
+
+				$conditions[] = $field.' '.$operator.' '.$value;
 			}
-			return $declarations;
+			return implode(' AND ', $conditions);
     	}
     	protected function _sqlEquivalentValues($arguments)
     	{

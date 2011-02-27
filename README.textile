@@ -27,26 +27,28 @@ You need declare a php class named "DB_CONFIG" with a property (an array) named 
 }
 require('lib/autobahn.php');
 
-$library = Autobahn::getConnection('default'); // "default" is the name of your connection.
+$library = Autobahn::getConnection('default'); // "default" is the name of your connection..
 
-//	Classic SQL
-$authors = $library->query('SELECT Author.id, Author.firstname FROM authors Author');	
+/* Classic SQL */
+$authors = $library->query('SELECT Author.*, Book.* FROM authors Author, books Book WHERE Book.author_id = Author.id');
 
-//	Show stats of the query
+/* Show some cool stats */
 $library->showLogs();
 
 </code></pre>
+
+The magic of Autobahn::getConnection() is Singleton, and it return an object construct with the database objects (dbo) of your database selected, I mean, when I can write others dbo's (you should fork and write anyone :]). PostgreSQL will be next in my list.
 
 h3. Classic SQL
 
 The "query" function is more than just a mask for the database manager. It's actually a method that executes the query, make statistics of the process and the result is post-processed to deliver a structured array of the query. Example:
 
-<pre><code>//	Classic SQL
+<pre><code>/* Classic SQL */
 $authors = $library->query('SELECT Author.*, Book.* FROM authors Author, books Book WHERE Book.author_id = Author.id');
 
 print_r($authors); 
 
-/* The result is:
+/* The result is: */
 Array
 (
     [0] => Array
@@ -66,32 +68,32 @@ Array
                 )
 
         )
-	[1] => Array ...
-	[2] => Array ...
-	[n] => Array ...
-)
-*/
-</code></pre>
+	[1] => Array()
+	[2] => Array()
+	[n] => Array()
+)</code></pre>
+
+I think is nice because, most of the time, you don't work with too much data and this simplify the proccess of read the database resources. But, if you need read a lot of information, you should take a look of the dbo_mysql.php and use the public functions that use the _execute() method.
 
 h3. Magic methods: Find, Insert, Update and Delete
 
 This magic methods provides an easy and intuitive way to build the SQL query for the database selected. Probably you'll still have to do complicated queries, but now most everyday queries are easy to invoke:
 
-<pre><code>//	Find
+<pre><code>/* Find */
 $book 			= $library->findBooksById(1);
 $books 			= $library->findAllBooks();
 $favorite_books = $library->findAllBooksById(1,2,3,4,5);
 
-//	Insert
+/* Magic Find */
 $newBook = array('id' => null, 'author_id' => 12, 'title' => 'Frameworks for PHP');
 $library->insertBooks($newBook);
 
-//	Update
+/* Update */
 $values = array('title' => 'Frameworks for PHP 5', 'description' => '...');
 $conditions = array('id' => 10);
 $library->updateBooks($values, $conditions);
 
-//	Delete
+/* Delete */
 $library->deleteBooksById(10,11,12);
 </code></pre>
 
@@ -104,9 +106,9 @@ The logs are used to analyze the efficiency of requests made. Each query execute
 $library = Autobahn::getConnection('default');
 $library->debug = true;
 
-// Queries...
+/* Queries... */
 
-//	Show stats of all queries :)
+/* Show stats of all queries :) */
 $library->showLogs();
 </code></pre>
 

@@ -6,6 +6,17 @@
 		public $debug = true;
 
 		private $__logs = array();
+		private $__options = array(
+			'fields' => array('*'),
+			'table' => null,
+			'conditions' => array(),
+			'group' => array(),
+			'order' => array(),
+			'limit' => null,
+			'page' => null,
+		);
+		private $__select_types = array('first','all','count','list');
+
 		protected $_config;
 
 		protected function __construct($config)
@@ -72,6 +83,28 @@
 			else
 				print_r($this->__logs);
 		}
+		public function find($type = 'first', $table, $options = array())
+		{
+			$options = $options + $this->__options;
+
+			$query = array(
+				'fields' 		=> $options['fields'],
+				'table' 		=> $table,
+				'conditions' 	=> $options['conditions'],
+				'group' 		=> $options['group'],
+				'order' 		=> $options['order'],
+				'limit' 		=> $type === 'first' ? 1 : $options['limit'],
+				'page' 			=> $options['page'],
+			);
+			
+			$sql = $this->renderStatement('select',$query);
+
+			return $this->query($sql);
+		}
+		public function findAll($table, $options = array())
+		{
+			return $this->find('all', $table, $options);
+		}
 		public function __call($method, $arguments)
 		{			
 			if(strpos($method, 'findAll') === 0)
@@ -83,31 +116,20 @@
 						list($CamelizedTable, $CamelizedField) = explode('By', $magic[1]);
 					else
 						$CamelizedTable = $magic[1];
-					
-					if(isset($CamelizedField) && !empty($CamelizedField) && (count($arguments[0]) > 0))
+
+					$options = array();
+
+					if(isset($CamelizedField))
 					{
-						$field = underscore($CamelizedField);
+						if(empty($CamelizedField) || empty($arguments))
+							trigger_error('Autobahn: You need to specify the parameters of findAllBy.',E_USER_ERROR);
 
-						$values = $this->_sqlEquivalentValues($arguments);
-						$conditions = underscore($CamelizedField).' IN ('.implode(',',$values).')';
+						$values = is_array($arguments[0]) ? $arguments[0] : $arguments;
+
+						$options['conditions'] = array(underscore($CamelizedField) => $values);
 					}
-					elseif(!isset($CamelizedField))
-						$conditions = '';
-					else
-						return false;
-					
-					$query = array(
-						'fields' => '*',
-						'table' => underscore($CamelizedTable),
-						'conditions' => $conditions,
-						'group' => '',
-						'order' => '',
-						'limit' => '',
-					);
-					
-					$sql = $this->renderStatement('select',$query);
 
-					return $this->query($sql);
+					return $this->find('all', underscore($CamelizedTable), $options);
 				}
 			}
 			elseif((count($arguments) === 1) && (strpos($method, 'find') === 0))
@@ -117,22 +139,15 @@
 				{
 					list($CamelizedTable, $CamelizedField) = explode('By', $magic[1]);
 					
-					$value = is_numeric($arguments[0]) ? $arguments[0] : '\''.addslashes($arguments[0]).'\'';
-					
-					$query = array(
-						'fields' => '*',
-						'table' => underscore($CamelizedTable),
-						'conditions' => underscore($CamelizedField).' = '.$value,
-						'group' => '',
-						'order' => '',
+					if(empty($CamelizedField) || !isset($arguments[0]))
+						trigger_error('Autobahn: You need to specify the values of findBy.',E_USER_ERROR);
+
+					$options = array(
+						'conditions' => array(underscore($CamelizedField) => $arguments[0]),
 						'limit' => '1',
 					);
-					
-					$sql = $this->renderStatement('select', $query);
 
-					$result = $this->query($sql);
-
-					return $result[0];
+					return $this->find('first', underscore($CamelizedTable), $options);
 				}
 			}
 			elseif((count($arguments) === 1) && (strpos($method, 'insert') === 0))
@@ -140,18 +155,16 @@
 				$magic = explode('insert', $method);
 				if(($magic[0] === '') && ($magic[1] !== ''))
 				{
-					$values = $this->_sqlEquivalentValues($arguments[0]);
-					$fields = array_keys($values);
+					if(!isset($arguments[0]) || !is_array($arguments[0]) || empty($arguments[0]))
+						trigger_error('Autobahn: You need to specify the values of insert.',E_USER_ERROR);
 
 					$query = array(
 						'table' => underscore($magic[1]),
-						'fields' => $fields,
-						'values' => $values,
+						'fields' => array_keys($arguments[0]),
+						'values' => $arguments[0],
 					);
 					
-					$sql = $this->renderStatement('insert', $query);
-
-					return $this->execute($sql);
+					return $this->execute($this->renderStatement('insert', $query));
 				}
 			}
 			elseif((count($arguments) === 2) && (strpos($method, 'update') === 0))
@@ -159,43 +172,39 @@
 				$magic = explode('update', $method);
 				if(($magic[0] === '') && ($magic[1] !== ''))
 				{
-					$declarations = $this->_sqlEquivalentDeclarations($arguments[0]);
-					$conditions = $this->_sqlEquivalentConditions($arguments[1]);
+					if(!isset($arguments[0]) || !is_array($arguments[0]) || empty($arguments[0]))
+						trigger_error('Autobahn: You need to specify the values of insert.',E_USER_ERROR);
+
+					if(!isset($arguments[1]) || !is_array($arguments[1]) || empty($arguments[1]))
+						trigger_error('Autobahn: You need to specify the conditions of insert.',E_USER_ERROR);
 
 					$query = array(
 						'table' => underscore($magic[1]),
-						'fields' => $declarations,
-						'conditions' => implode(' AND ',$conditions),
+						'declarations' => $arguments[0],
+						'conditions' => $arguments[1],
 					);
 					
-					$sql = $this->renderStatement('update', $query);
-
-					return $this->execute($sql);
+					return $this->execute($this->renderStatement('update', $query));
 				}
 			}
 			elseif((count($arguments) > 0) && (strpos($method, 'delete') === 0))
 			{
 				$magic = explode('delete', $method);
-				if(($magic[0] === '') && ($magic[1] !== ''))
+				if(($magic[0] === '') && ($magic[1] !== '') && (strpos($magic[1], 'By') !== false))
 				{
-					if(strpos($magic[1], 'By') === false)
-						return false;
-
 					list($CamelizedTable, $CamelizedField) = explode('By', $magic[1]);
 					
-					$field = underscore($CamelizedField);
+					if(empty($CamelizedField) || !isset($arguments[0]))
+						trigger_error('Autobahn: You need to specify the values of deleteBy.',E_USER_ERROR);
 
-					$values = $this->_sqlEquivalentValues($arguments);
-					$conditions = underscore($CamelizedField).' IN ('.implode(',',$values).')';
+					$values = is_array($arguments[0]) ? $arguments[0] : $arguments;
 
 					$query = array(
 						'table' => underscore($CamelizedTable),
-						'conditions' => $conditions,
+						'conditions' => array(underscore($CamelizedField) => $values),
 					);
-					
-					$sql = $this->renderStatement('delete', $query);
 
-					return $this->execute($sql);
+					return $this->execute($this->renderStatement('delete', $query));
 				}
 			}
 			else

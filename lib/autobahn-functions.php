@@ -5,7 +5,7 @@
 		function getMicrotime()
 		{
 			list($usec, $sec) = explode(' ', microtime());
-			return ((float)$usec + (float)$sec);
+			return ((float) $usec + (float) $sec);
 		}
 	}
 	if(!function_exists('pr'))
