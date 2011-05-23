@@ -205,7 +205,7 @@
 				{
 					$operator = ($operator === 'NOT') ? 'NOT LIKE' : 'LIKE';
 					
-					$value = mysql_real_escape_string($this->__dbo_connection, $value);
+					$value = $this->_sqlEquivalentValue($value);
 				}
 				elseif(is_bool($value) || is_null($value))
 				{
