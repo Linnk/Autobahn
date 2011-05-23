@@ -211,10 +211,7 @@
 				{
 					$operator = ($operator === 'NOT') ? 'IS NOT' : 'IS';
 					
-					if(is_bool($value))
-						$value = $value === true ? 'TRUE' : 'FALSE';
-					else
-						$value = 'NULL';
+					$value = $this->_sqlEquivalentValue($value);
 				}
 				elseif(is_array($value))
 				{
