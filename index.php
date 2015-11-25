@@ -1,41 +1,57 @@
 <?php
 
-	class DB_CONFIG
-	{
-		public $default = array(
-			'driver' 	=> 'mysql',
-			'host' 		=> 'localhost',
-			'user' 		=> 'root',
-			'password' 	=> 'root',
-			'database' 	=> 'library',
-		);
-	}
+/* Loading Autobahn
+-------------------------- */
+require 'lib/autobahn.php';
 
-	require('lib/autobahn.php');
+$library = Autobahn::getConnection(array(
+	'driver' 	=> 'mysql',
+	'host' 		=> 'localhost',
+	'user' 		=> 'root',
+	'password' 	=> 'root',
+	'database' 	=> 'spumer_db',
+));
 
-	$library = Autobahn::getConnection('default');
 
-	/* Classic SQL */
-	$authors = $library->query('SELECT Author.*, Book.* FROM authors Author, books Book WHERE Book.author_id = Author.id');
-	
-	/* Magic Find */
-	$book = $library->findBooksById(1);
-	$books = $library->findAllBooks();
-	$favorite_books = $library->findAllBooksById(array(1,2,3,4,5));
+/* Classic SQL 
+---------------------------------------------------------- */
+$users = $library->query('SELECT User.* FROM users User;');
 
-	/* Insert */
-	$newBook = array('id' => null, 'author_id' => 1, 'title' => 'Frameworks for languages');
-	$library->insertBooks($newBook);
 
-	/* Update */
-	$values = array('title' => 'Frameworks for PHP 5', 'description' => '...');
-	$conditions = array('id' => 1);
-	$library->updateBooks($values, $conditions);
-	
-	/* Delete */
-	$library->deleteBooksById(99);
+/* Magic Find All
+--------------------------------- */
+$users = $library->findAllUsers();
 
-	/* Show some cool stats of all queries :) */
-	$library->showLogs();
 
-?>
+/* Magic Find Some
+------------------------------------------------ */
+$users = $library->findAllUsersById(array(1, 2));
+
+
+/* Magic Find One
+---------------------------------------------------------- */
+$user = $library->findUsersByUsername('fake@username.com');
+
+
+/* Magic Insert
+---------------------------------------------------------------------- */
+$new_user = array('username' => 'fake@username.com', 'name' => 'Fake');
+
+$library->insertUsers($new_user);
+
+
+/* Magic Update
+---------------------------------------------------------------------- */
+$values     = array('name' => 'Totally fake');
+$conditions = array('username' => 'fake@username.com');
+
+$library->updateUsers($values, $conditions);
+
+
+/* Magic Delete
+---------------------------------------------------------------------- */
+$library->deleteUsersById(4);
+
+
+// TO-DO:
+// $library->showLogs();
