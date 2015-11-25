@@ -9,109 +9,59 @@ Autobahn is a bit far from the simple ORM would like, however, is already a very
 - SQL Query Builder
 - Extend the support database
 
-Achieving these goals, the next step is to create a model of a complete object-oriented database (ORM). I do not want to imitate existing projects as Propel (an excellent ORM), more than that, I would like an ORM simple, easy to implement for small jobs, and so fast and efficient as its simplicity.
-
 h3. KISS - «Keep It Short and Simple»
 
-You need declare a php class named "DB_CONFIG" with a property (an array) named as you want (I recommend "default", because Autobahn is which going to looking for in first place) with the values of the "driver", "host", "user", "password" and "database" for your connection . You can put this class in other file (it's recommend too) and set the constant with the path of this. After that, is all automagic:
+<pre><code>/* Loading Autobahn
+-------------------------- */
+require 'lib/autobahn.php';
 
-<pre><code>class DB_CONFIG
-{
-	public $default = array(
-		'driver' 	=> 'mysql',
-		'host' 		=> 'localhost',
-		'user' 		=> 'root',
-		'password' 	=> '010203',
-		'database' 	=> 'library'
-	);
-}
-require('lib/autobahn.php');
+$library = Autobahn::getConnection(array(
+	'driver' 	=> 'mysql',
+	'host' 		=> 'localhost',
+	'user' 		=> 'root',
+	'password' 	=> 'root',
+	'database' 	=> 'spumer_db',
+));
 
-$library = Autobahn::getConnection('default'); // "default" is the name of your connection..
 
-/* Classic SQL */
-$authors = $library->query('SELECT Author.*, Book.* FROM authors Author, books Book WHERE Book.author_id = Author.id');
+/* Classic SQL
+---------------------------------------------------------- */
+$users = $library->query('SELECT User.* FROM users User;');
 
-/* Show some cool stats */
-$library->showLogs();
 
+/* Magic Find All
+--------------------------------- */
+$users = $library->findAllUsers();
+
+
+/* Magic Find Some
+------------------------------------------------ */
+$users = $library->findAllUsersById(array(1, 2));
+
+
+/* Magic Find One
+---------------------------------------------------------- */
+$user = $library->findUsersByUsername('fake@username.com');
+
+
+/* Magic Insert
+---------------------------------------------------------------------- */
+$new_user = array('username' => 'fake@username.com', 'name' => 'Fake');
+
+$library->insertUsers($new_user);
+
+
+/* Magic Update
+--------------------------------------------- */
+$values     = array('name' => 'Totally fake');
+$conditions = array('username' => 'fake@username.com');
+
+$library->updateUsers($values, $conditions);
+
+
+/* Magic Delete
+---------------------------- */
+$library->deleteUsersById(4);
 </code></pre>
 
-The magic of Autobahn::getConnection() is Singleton, and it return an object construct with the database objects (dbo) of your database selected, I mean, when I can write others dbo's (you should fork and write anyone :]). PostgreSQL will be next in my list.
-
-h3. Classic SQL
-
-The "query" function is more than just a mask for the database manager. It's actually a method that executes the query, make statistics of the process and the result is post-processed to deliver a structured array of the query. Example:
-
-<pre><code>/* Classic SQL */
-$authors = $library->query('SELECT Author.*, Book.* FROM authors Author, books Book WHERE Book.author_id = Author.id');
-
-print_r($authors); 
-
-/* The result is: */
-Array
-(
-    [0] => Array
-        (
-            [Author] => Array
-                (
-                    [id] => 1
-                    [firstname] => John
-                    [lastname] => Romero
-                )
-
-            [Book] => Array
-                (
-                    [id] => 2
-                    [author_id] => 1
-                    [title] => Frameworks for languages
-                )
-
-        )
-	[1] => Array()
-	[2] => Array()
-	[n] => Array()
-)</code></pre>
-
-I think is nice because, most of the time, you don't work with too much data and this simplify the proccess of read the database resources. But, if you need read a lot of information, you should take a look of the dbo_mysql.php and use the public functions that use the _execute() method.
-
-h3. Magic methods: Find, Insert, Update and Delete
-
-This magic methods provides an easy and intuitive way to build the SQL query for the database selected. Probably you'll still have to do complicated queries, but now most everyday queries are easy to invoke:
-
-<pre><code>/* Find */
-$book 			= $library->findBooksById(1);
-$books 			= $library->findAllBooks();
-$favorite_books = $library->findAllBooksById(1,2,3,4,5);
-
-/* Magic Find */
-$newBook = array('id' => null, 'author_id' => 12, 'title' => 'Frameworks for PHP');
-$library->insertBooks($newBook);
-
-/* Update */
-$values = array('title' => 'Frameworks for PHP 5', 'description' => '...');
-$conditions = array('id' => 10);
-$library->updateBooks($values, $conditions);
-
-/* Delete */
-$library->deleteBooksById(10,11,12);
-</code></pre>
-
-h3. Logs
-
-The logs are used to analyze the efficiency of requests made. Each query executed from autobahn is stored in the log file with statistics by default:
-
-<pre><code>require('lib/autobahn.php');
-
-$library = Autobahn::getConnection('default');
-$library->debug = true;
-
-/* Queries... */
-
-/* Show stats of all queries :) */
-$library->showLogs();
-</code></pre>
-
-h3. There are many things to do and Models are comming soon :3
-
-Criticism and comments about it are welcome.
+The magic of Autobahn::getConnection() is Singleton, and it return an object construct with the database objects (dbo) of your database selected, I mean, when I can get ti write others dbo's. PostgreSQL will be next in my list.

@@ -13,7 +13,7 @@ $library = Autobahn::getConnection(array(
 ));
 
 
-/* Classic SQL 
+/* Classic SQL
 ---------------------------------------------------------- */
 $users = $library->query('SELECT User.* FROM users User;');
 
@@ -41,7 +41,7 @@ $library->insertUsers($new_user);
 
 
 /* Magic Update
----------------------------------------------------------------------- */
+--------------------------------------------- */
 $values     = array('name' => 'Totally fake');
 $conditions = array('username' => 'fake@username.com');
 
@@ -49,7 +49,7 @@ $library->updateUsers($values, $conditions);
 
 
 /* Magic Delete
----------------------------------------------------------------------- */
+---------------------------- */
 $library->deleteUsersById(4);
 
 
