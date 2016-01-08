@@ -66,13 +66,17 @@ abstract class AutobahnManager
 
 	public function getFormatedRows()
 	{
+		$key = 0;
 		$results = array();
-
-		while ($row = $this->__pdo_statement->fetch())
+		
+		while ($row = $this->__pdo_statement->fetch(PDO::FETCH_NUM))
 		{
-			$results[] = $row;
+			foreach($row as $col => $value) {
+				$table_meta = $this->__pdo_statement->getColumnMeta($col);
+				$results[$key][$table_meta['table']][$table_meta['name']] = $value;
+			}
+			$key++;
 		}
-
 		return $results;
 	}
 
@@ -221,7 +225,7 @@ abstract class AutobahnManager
 
 	private function __execute($query)
 	{
-		return $this->__pdo_statement = $this->__pdo->query($query, PDO::FETCH_ASSOC);
+		return $this->__pdo_statement = $this->__pdo->query($query);
 	}
 
 	private function __lastAffected()
